@@ -51,7 +51,7 @@ function MonteCarlo(
     return mc
 end
 
-function run!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T<:Lattice
+function run!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing, prev_initQ::Bool=false) where T<:Lattice
     #init MPI
     rank = 0
     commSize = 1
@@ -77,7 +77,12 @@ function run!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T
     end
     
     #init spin configuration
-    if mc.sweep == 0
+    #most times, we are starting a simulation from scratch, so we need to randomize the spins
+    #other times, we need the spin configuration from a previous run (e.g. simulated annealing)
+    #and in those cases we skip the randomization. this is what prev_initQ is doing here:
+    #       if prev_initQ = false, then !prev_initQ = true, and we randomize spins
+    #       if prev_initQ = true, then !prev_init! = false, and we don't randomize spins
+    if mc.sweep == 0 && !prev_initQ
         for i in 1:length(mc.lattice)
             setSpin!(mc.lattice, i, uniformOnSphere(mc.rng))
         end
@@ -224,4 +229,9 @@ function run!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T
     #return
     rank == 0 && @printf("Simulation finished on %s.\n", Dates.format(Dates.now(), "dd u yyyy HH:MM:SS"))
     return nothing    
+end
+
+function run_from_prev!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T<:Lattice
+    #warning! only use if a run has been done before, else mc.lattice.spins is a vector of zeros!
+    run!(mc, outfile=outfile, prev_initQ=true)
 end
