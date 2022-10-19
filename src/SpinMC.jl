@@ -3,6 +3,7 @@ module SpinMC
 include("UnitCell.jl")
 export UnitCell, addInteraction!, setInteractionOnsite!, setField!, addBasisSite!
 include("InteractionMatrix.jl")
+export BacktoMatrix
 include("Lattice.jl")
 export Lattice, size, length, getSpin, setSpin!, getSitePosition
 
