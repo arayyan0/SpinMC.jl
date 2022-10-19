@@ -19,3 +19,8 @@ function InteractionMatrix(M::T) where T<:AbstractMatrix
     m = InteractionMatrix(M[1,1], M[1,2], M[1,3], M[2,1], M[2,2], M[2,3], M[3,1], M[3,2], M[3,3])
     return m
 end
+
+function BackToMatrix(m::InteractionMatrix)
+    M = [m.m11 m.m12 m.m13; m.m21 m.m22 m.m23; m.m31 m.m32 m.m33]
+    return M
+end
