@@ -8,6 +8,7 @@ mutable struct Lattice{D,N}
 
     interactionSites::Vector{NTuple{N,Int}} #list of length N_sites, for every site contains all interacting sites
     interactionMatrices::Vector{NTuple{N,InteractionMatrix}} #list of length N_sites, for every site contains all interaction matrices
+    interactionOffsets::Vector{NTuple{N,NTuple{D,Int}}} #list of length N_sites, for every site contains the offset to interacting site (in units of primitive lattice vectors)
     interactionOnsite::Vector{InteractionMatrix} #list of length N_sites, for every site contains the local onsite interaction matrix
     interactionField::Vector{NTuple{3,Float64}} #list of length N_sites, for every site contains the local field
     Lattice(D,N) = new{D,N}()
@@ -89,6 +90,7 @@ function Lattice(uc::UnitCell{D}, L::NTuple{D,Int}) where D
     #write interactions to lattice
     lattice.interactionSites = repeat([ NTuple{Ninteractions,Int}(ones(Int,Ninteractions)) ], lattice.length)
     lattice.interactionMatrices = repeat([ NTuple{Ninteractions,InteractionMatrix}(repeat([InteractionMatrix()],Ninteractions)) ], lattice.length)
+    lattice.interactionOffsets = repeat([ NTuple{Ninteractions,NTuple{D,Int}}(repeat([Int.( tuple(ones(Int, D)...) )], Ninteractions)) ], lattice.length) 
     lattice.interactionOnsite = repeat([InteractionMatrix()], lattice.length)
     lattice.interactionField = repeat([(0.0,0.0,0.0)], lattice.length)
 
@@ -114,6 +116,7 @@ function Lattice(uc::UnitCell{D}, L::NTuple{D,Int}) where D
         #two-spin interactions
         interactionSites = repeat([i], Ninteractions)
         interactionMatrices = repeat([InteractionMatrix()], Ninteractions)
+        interactionOffsets = repeat([Int.( tuple(ones(Int, D)...) )], Ninteractions)
         for j in 1:Ninteractions
             if j <= length(interactionTargetSites[b])
                 b2, offset, M = interactionTargetSites[b][j]
@@ -123,10 +126,12 @@ function Lattice(uc::UnitCell{D}, L::NTuple{D,Int}) where D
 
                 interactionSites[j] = siteIndexFromParametrization(targetSite)
                 interactionMatrices[j] = InteractionMatrix(M)
+                interactionOffsets[j] = offset
             end
         end
         lattice.interactionSites[i] = NTuple{Ninteractions,Int}(interactionSites)
         lattice.interactionMatrices[i] = NTuple{Ninteractions,InteractionMatrix}(interactionMatrices)
+        lattice.interactionOffsets[i] = NTuple{Ninteractions,NTuple{D,Int}}(interactionOffsets)
     end
 
     #return lattice
@@ -161,6 +166,10 @@ end
 
 function getInteractionMatrices(lattice::Lattice{D,N}, site::Int)::NTuple{N,InteractionMatrix} where {D,N}
     return lattice.interactionMatrices[site]
+end
+
+function getInteractionOffsets(lattice::Lattice{D,N}, site::Int)::NTuple{N,NTuple{D,Int}} where {D,N}
+    return lattice.interactionOffsets[site]
 end
 
 function getInteractionOnsite(lattice::Lattice{D,N}, site::Int)::InteractionMatrix where {D,N}
