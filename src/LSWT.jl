@@ -1,5 +1,3 @@
-using LinearAlgebra
-
 struct LSWT
 end
 
