@@ -231,7 +231,7 @@ function run!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing, prev_in
     return nothing    
 end
 
-function run_from_prev!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T<:Lattice
+function runFromPrevious!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T<:Lattice
     #warning! only use if a run has been done before, else mc.lattice.spins is a vector of zeros!
     run!(mc, outfile=outfile, prev_initQ=true)
 end

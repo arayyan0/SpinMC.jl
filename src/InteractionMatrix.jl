@@ -20,7 +20,7 @@ function InteractionMatrix(M::T) where T<:AbstractMatrix
     return m
 end
 
-function BackToMatrix(m::InteractionMatrix)
+function backToMatrix(m::InteractionMatrix)
     M = [m.m11 m.m12 m.m13; m.m21 m.m22 m.m23; m.m31 m.m32 m.m33]
     return M
 end
