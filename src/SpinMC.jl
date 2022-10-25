@@ -5,7 +5,7 @@ export UnitCell, addInteraction!, setInteractionOnsite!, setField!, addBasisSite
 include("InteractionMatrix.jl")
 export backToMatrix
 include("Lattice.jl")
-export Lattice, size, length, getSpin, setSpin!, getSitePosition
+export Lattice, size, length, getSpin, setSpin!, getSitePosition, findRealDistanceBetweenTwoSites
 
 include("Observables.jl")
 export Observables
