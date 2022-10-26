@@ -179,3 +179,25 @@ end
 function getInteractionField(lattice::Lattice{D,N}, site::Int)::NTuple{3,Float64} where {D,N}
     return lattice.interactionField[site]
 end
+
+function findRealDistanceBetweenTwoSites(lattice::Lattice{D,N}, s1::Int64, neighbourID::Int64)::Vector{Float64} where {D,N}
+    """
+    given a site (in 1:Nsites) and the site id of its neighbour (in 1:Ninteractions),
+    return the distance vector that points from the site to its neighbour. that is,
+
+        r(s, neighbourID) - r(s)  = (m1-n1) a1 + (m2-n2) a2 + (m3-n3) a3 + rho(s, neighbourID) - rho(s)
+
+    where ((m1-n1), (m2-n2), (m3-n3)) is an offset vector of integers (in units of Bravais primitive cell vectors)
+                a1,      a2,       a3 are Bravais primitive cell vectors
+                  rho(s, neighbourID) is the position of neighbour of s1
+                               rho(s) is the position of site s1
+    """
+    # find the site s2
+    s2     = lattice.interactionSites[s1][neighbourID]
+    offset = lattice.interactionOffsets[s1][neighbourID]
+
+    sublattice_distance = collect(lattice.sitePositions[s2]) -  collect(lattice.sitePositions[s1]) 
+    offset_in_primitive = sum([collect(lattice.unitcell.primitive[j]) * offset[j] for j in 1:D])
+
+    return offset_in_primitive + sublattice_distance
+end
